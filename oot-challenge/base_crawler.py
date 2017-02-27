@@ -71,6 +71,7 @@ class BasicCrawler(object):
     * Build testing framework
     * Crawler currently stops after one level of crawling, need to implement
       multi-level crawling with stopping criteria
+    * Enable multi-threading/asynchronous requests framework
     * Crawler can use requests library or Selenium as specified by user
     * Robust link parsing for links to crawl and proper error raising
     * Robust error handling of input urls and proper error raising
