@@ -1,3 +1,32 @@
+"""A Crawler class which crawls links from a given start url.
+
+Goal of this project is to re-create a Scrapy style framework where
+the Crawler starts at a given url and continues crawling links until
+a specified stopping point.
+
+Implemented Ideas
+-----------------
+* Crawler can start at base url OR use base url to complete a partial
+  url that user specifies as the starting page source.
+* Minor error handling for base_url and page_source
+* Minor error handling and simple status messages for GET requests
+* Minor error handling and simple status messages for MongoDB operations
+* Crawler saves each page it scrapes in a MongoDB in case there is an
+  error during scraping.
+* Crawler parses pages for links to follow
+
+TODO
+----
+* Build testing framework
+* Crawler currently stops after one level of crawling, need to implement
+  multi-level crawling with stopping criteria
+* Enable multi-threading/asynchronous requests framework
+* Crawler can use requests library or Selenium as specified by user
+* Robust link parsing for links to crawl and proper error raising
+* Robust error handling of input urls and proper error raising
+* Robust error handling of MongoDB operations and proper error raising
+"""
+
 import requests
 from bs4 import BeautifulSoup
 from collections import deque
@@ -5,14 +34,11 @@ from pymongo import MongoClient
 from selenium import webdriver
 import datetime
 
+
 class BasicCrawler(object):
     """A Crawler class which crawls links from a given start url.
 
-    Goal of this project is to re-create a Scrapy style framework where
-    the Crawler starts at a given url and continues crawling links until
-    a specified stopping point.
-
-    WORK IN PROGRESS, SEE BELOW FOR IMPLEMENTED AND TODO tasks.
+    WORK IN PROGRESS, SEE MODULE DOCSTRING FOR IMPLEMENTED AND TODO tasks.
 
     Parameters
     ----------
@@ -53,30 +79,6 @@ class BasicCrawler(object):
     crawl(links_css_selector,
           [coll_name, start_from_base, start_page_route, start_record_name])
         Crawl from starting url, saving html of each page in a MongoDB.
-
-
-    Implemented Ideas
-    -----------------
-    * Crawler can start at base url OR use base url to complete a partial
-      url that user specifies as the starting page source.
-    * Minor error handling for base_url and page_source
-    * Minor error handling and simple status messages for GET requests
-    * Minor error handling and simple status messages for MongoDB operations
-    * Crawler saves each page it scrapes in a MongoDB in case there is an
-      error during scraping.
-    * Crawler parses pages for links to follow
-
-    TODO
-    ----
-    * Build testing framework
-    * Crawler currently stops after one level of crawling, need to implement
-      multi-level crawling with stopping criteria
-    * Enable multi-threading/asynchronous requests framework
-    * Crawler can use requests library or Selenium as specified by user
-    * Robust link parsing for links to crawl and proper error raising
-    * Robust error handling of input urls and proper error raising
-    * Robust error handling of MongoDB operations and proper error raising
-
     """
 
     def __init__(self, base_url, db_name, coll_name, use_selenium=False):
@@ -159,9 +161,9 @@ class BasicCrawler(object):
         print "Scraping start page..."
         page_html, url = self._get_start_page_html(start_from_base, page_route)
         data = self._make_record_dict(start_record_name,
-                                     url,
-                                     page_html,
-                                     start_page=True)
+                                      url,
+                                      page_html,
+                                      start_page=True)
         print "Saving start page html..."
         self._insert_one_record(data)
 
@@ -169,8 +171,8 @@ class BasicCrawler(object):
         """Scrape the html from the given URL and save it in a MongoDB."""
         page_html = self.get_page_html(url)
         data = self._make_record_dict(record_name,
-                                     url,
-                                     page_html)
+                                      url,
+                                      page_html)
         print "Saving page html..."
         self._insert_one_record(data)
 
@@ -185,7 +187,7 @@ class BasicCrawler(object):
         """Return the html of the start page from the db."""
         search_term = {'start_page': True}
         start_dict = self.get_record_from_db(search_term)
-        if start_dict == None:
+        if start_dict is None:
             print "No start page in the collection {}".format(coll_name)
             return start_dict
         else:
@@ -205,7 +207,7 @@ class BasicCrawler(object):
         pass
 
     def crawl(self, links_css_selector, coll_name=None, start_from_base=True,
-                    start_page_route=None, start_record_name='start'):
+              start_page_route=None, start_record_name='start'):
         """Crawl from starting url, saving html of each page in a MongoDB."""
         # connect to collection
         if coll_name:
