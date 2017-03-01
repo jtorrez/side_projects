@@ -1,4 +1,4 @@
-"""A Crawler class which crawls links from a given start url.
+"""Building the base infrastructure for an automatic web crawler.
 
 Goal of this project is to re-create a Scrapy style framework where
 the Crawler starts at a given url and continues crawling links until
